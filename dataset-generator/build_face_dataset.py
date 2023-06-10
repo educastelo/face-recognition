@@ -1,21 +1,12 @@
-# python build_face_dataset.py -c haarcascade_frontalface_default.xml -o dataset/dudu
-
 # import the necessary packages
 from imutils.video import VideoStream
-import argparse
 import imutils
 import time
 import cv2
 import os
 
-# construct the argument parser and parse the arguments
-ap = argparse.ArgumentParser()
-ap.add_argument("-c", "--cascade", required=True, help="path to where the face cascade resides")
-ap.add_argument("-o", "--output", required=True, help="path to output directory")
-args = vars(ap.parse_args())
-
 # load OpenCV's Haar cascade for face detection from disk
-detector = cv2.CascadeClassifier(args["cascade"])
+detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
 # initialize the video stream, allow the camera sensor to warm up,
 # and initialize the total number of example faces written to disk
@@ -24,14 +15,19 @@ print("[INFO] starting video stream...")
 
 # using webcam
 vs = VideoStream(src=0).start()
-
-# # using raspberry camera
-# vs = VideoStream(usePiCamera=True).start()
 time.sleep(2.0)
+
 total = 0
+frame_count = 0
+
+# output directory
+output_dir = f"dataset/{input('Digite o nome do usuário a ser cadastrado: ')}"
+
+if not os.path.exists(output_dir):
+    os.makedirs(output_dir)
 
 # loop over the frames from the video stream
-while True:
+while total < 50:
     # grab the frame from the threaded video stream, clone it, (just
     # in case we want to write it to disk), and then resize the frame,
     # so we can apply face detection faster
@@ -43,24 +39,28 @@ while True:
     rects = detector.detectMultiScale(
         cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY), scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
 
-    # loop over the face detections and draw them on the frame
-    for (x, y, w, h) in rects:
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+    if len(rects) > 0:
+        # loop over the face detections and draw them on the frame
+        for (x, y, w, h) in rects:
+            cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+
+        if frame_count % 5 == 0:
+            # save the face image each 5 frames
+            p = os.path.sep.join([output_dir, "{}.png".format(str(total).zfill(5))])
+            cv2.imwrite(p, orig)
+            total += 1
+
+    # Increment the frame counter and reset it when it reaches 5
+    frame_count += 1
+    if frame_count == 5:
+        frame_count = 0
 
     # show the output frame
     cv2.imshow("Frame", frame)
     key = cv2.waitKey(1) & 0xFF
 
-    # if the `k` key was pressed, write the *original* frame to disk
-    # so, we can later process it and use it for face recognition
-    if key == ord("k"):
-        p = os.path.sep.join([args["output"], "{}.png".format(
-            str(total).zfill(5))])
-        cv2.imwrite(p, orig)
-        total += 1
-
     # if the `q` key was pressed, break from the loop
-    elif key == ord("q"):
+    if key == ord("q"):
         break
 
 # print the total faces saved and do a bit of cleanup
