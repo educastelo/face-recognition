@@ -1,5 +1,3 @@
-# python encode_faces.py -i dataset-generator/dataset -e encodings.pickle
-
 # import the necessary packages
 from imutils import paths
 import face_recognition
