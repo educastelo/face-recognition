@@ -19,7 +19,7 @@ Este projeto implementa um sistema de reconhecimento facial completo que permite
 
 ### Pré-requisitos
 
-- Python 3.8+
+- Python (testado somente no 3.12)
 - Webcam (para captura e reconhecimento)
 - **Windows**: Visual Studio com C++ Build Tools e Windows SDK (necessário para compilar dlib)
 
