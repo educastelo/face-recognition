@@ -26,7 +26,7 @@ Este projeto implementa um sistema de reconhecimento facial completo que permite
 ### 1. Clone o repositório
 
 ```bash
-git clone https://github.com/seu-usuario/face-recognition.git
+git clone https://github.com/educastelo/face-recognition.git
 cd face-recognition
 ```
 
